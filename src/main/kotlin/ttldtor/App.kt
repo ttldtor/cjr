@@ -10,6 +10,27 @@ import javafx.scene.control.MenuItem
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 
+enum class EventType {Message, ThirdPersonMessage, Enter, Exit}
+
+interface IEvent {
+    val type: EventType
+    val timestamp: Long
+    val who: String
+}
+
+interface IMessageEvent: IEvent {
+    val message: String
+}
+
+class EnterEvent(override val type: EventType = EventType.Enter, override val timestamp: Long, override val who: String) : IEvent
+class ExitEvent(override val type: EventType = EventType.Exit, override val timestamp: Long, override val who: String) : IEvent
+class MessageEvent(override val message: String, override val type: EventType = EventType.Message, override val timestamp: Long, override val who: String) : IMessageEvent
+class ThirdPersonMessageEvent(override val message: String, override val type: EventType = EventType.ThirdPersonMessage, override val timestamp: Long, override val who: String) : IMessageEvent
+
+fun parseEvent(): IEvent? {
+    return null;
+}
+
 fun createMenuBar(): MenuBar {
     val menuBar = MenuBar()
     val menuFile = Menu("File")
