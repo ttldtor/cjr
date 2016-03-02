@@ -4,9 +4,10 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import java.util.*
+import kotlin.properties.Delegates
 
 class CjrChatLogParser: ChatLogParser {
-    companion object {
+    private companion object {
         final val timeStampClassName = "ts"
         final val joinEventClassName = "mj"
         final val leaveEventClassName = "ml"
@@ -14,8 +15,8 @@ class CjrChatLogParser: ChatLogParser {
         final val thirdPersonMessageClassName = "mne"
     }
 
-    fun getTimeStampElement(e: Element): Element? {
-        val prev = e.previousElementSibling()
+    private fun Element.getTimeStampElement(): Element? {
+        val prev = this.previousElementSibling()
 
         while (prev != null) {
             if (prev.hasClass(timeStampClassName)) {
@@ -33,40 +34,71 @@ class CjrChatLogParser: ChatLogParser {
         return null
     }
 
+    private val Element.collectedText: String
+        get() = this.textNodes().fold("") {
+            a, b -> a + b.text()
+        }
 
-    fun getMillis(e: Element): Long {
-        val timeElements = e.attr("name").split(":.")
+    private val Element.millis: Long
+        get() {
+            val timeElements = this.attr("name").split(':')
+            val secondsParts = timeElements[2].split('.')
 
-        return timeElements[0].toLong() * 3600000 + timeElements[1].toLong() * 60000 + timeElements[2].toLong() * 1000
-    }
+            try {
+                val hours = timeElements[0].toLong()
+                val minutes = timeElements[1].toLong()
+                val seconds = secondsParts[0].toLong()
+                val millis = if (secondsParts.size == 2) secondsParts[1].toLong() else 0
 
-    override fun parse(date: Date, fileContents: String): Map<Long, IEvent> {
-        val doc = Jsoup.parse(fileContents)
-        val millis = date.time
-        val joinEvents = doc.getElementsByClass(joinEventClassName)
-        val result: MutableMap<Long, IEvent> = mutableMapOf()
+                println("${this.attr("name")} -> $hours:$minutes:$seconds.$millis")
 
-
-        for (j in joinEvents) {
-            val texts = j.textNodes()
-
-            val text = texts.fold("") {
-                a, b -> a + b.text()
-            }
-
-            val who = text.split(" ")[0]
-            val timeStamp = getTimeStampElement(j)
-
-            if (timeStamp != null) {
-                val newMillis = millis + getMillis(timeStamp)
-
-                result.put(newMillis, EnterEvent(timestamp = millis + getMillis(timeStamp), who = who))
+                return hours * 3600000 + minutes * 60000 + seconds * 1000 + millis
+            } catch(_:NumberFormatException) {
+                return 0
             }
         }
 
+    private val Element.who: String
+        get() = this.collectedText.split(" ")[0]
+
+    override fun parse(date: Date, fileContents: String): ParseResult {
+        val doc = Jsoup.parse(fileContents)
+        val millis = date.time
+        val joinEvents = doc.getElementsByClass(joinEventClassName)
+        val leaveEvents = doc.getElementsByClass(leaveEventClassName)
+        val allEvents: MutableMap<Long, IEvent> = mutableMapOf()
+        val enterEventsList: MutableList<EnterEvent> = mutableListOf()
+        val exitEventsList: MutableList<ExitEvent> = mutableListOf()
+        val messageEventsList: MutableList<MessageEvent> = mutableListOf()
+        val thirdPersonMessageEventsList: MutableList<ThirdPersonMessageEvent> = mutableListOf()
 
 
+        for (j in joinEvents) {
+            val who = j.who
+            val timeStamp = j.getTimeStampElement()
 
-        return result;
+            if (timeStamp != null) {
+                val newMillis = millis + timeStamp.millis
+                val event = EnterEvent(timestamp = newMillis, who = who)
+
+                allEvents.put(newMillis, event)
+                enterEventsList.add(event)
+            }
+        }
+
+        for (l in leaveEvents) {
+            val who = l.who
+            val timeStamp = l.getTimeStampElement()
+
+            if (timeStamp != null) {
+                val newMillis = millis + timeStamp.millis
+                val event = ExitEvent(timestamp = newMillis, who = who)
+
+                allEvents.put(newMillis, event)
+                exitEventsList.add(event)
+            }
+        }
+
+        return ParseResult(enterEventsList, exitEventsList, messageEventsList, thirdPersonMessageEventsList, allEvents);
     }
 }

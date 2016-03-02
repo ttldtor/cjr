@@ -11,16 +11,6 @@ import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.jsoup.Jsoup
 
-
-
-fun parseEvent(s: String): IEvent? {
-    val doc = Jsoup.parse(s)
-
-    doc.getElementsByClass("mj")
-
-    return null;
-}
-
 fun createMenuBar(): MenuBar {
     val menuBar = MenuBar()
     val menuFile = Menu("File")
