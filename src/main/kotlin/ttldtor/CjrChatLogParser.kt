@@ -61,6 +61,32 @@ class CjrChatLogParser: ChatLogParser {
     private val Element.who: String
         get() = this.collectedText.split(" ")[0]
 
+    fun parseEnterEvent(millis: Long, e: Element): Pair<Long, EnterEvent>? {
+        val timeStamp = e.getTimeStampElement()
+
+        if (timeStamp != null) {
+            val newMillis = millis + timeStamp.millis
+            val event = EnterEvent(timestamp = newMillis, who = e.who)
+
+            return Pair(newMillis, event)
+        }
+
+        return null
+    }
+
+    fun parseExitEvent(millis: Long, e: Element): Pair<Long, ExitEvent>? {
+        val timeStamp = e.getTimeStampElement()
+
+        if (timeStamp != null) {
+            val newMillis = millis + timeStamp.millis
+            val event = ExitEvent(timestamp = newMillis, who = e.who)
+
+            return Pair(newMillis, event)
+        }
+
+        return null
+    }
+
     override fun parse(date: Date, fileContents: String): ParseResult {
         val doc = Jsoup.parse(fileContents)
         val millis = date.time
@@ -74,28 +100,20 @@ class CjrChatLogParser: ChatLogParser {
 
 
         for (j in joinEvents) {
-            val who = j.who
-            val timeStamp = j.getTimeStampElement()
+            val parseResult = parseEnterEvent(millis, j)
 
-            if (timeStamp != null) {
-                val newMillis = millis + timeStamp.millis
-                val event = EnterEvent(timestamp = newMillis, who = who)
-
-                allEvents.put(newMillis, event)
-                enterEventsList.add(event)
+            if (parseResult != null) {
+                allEvents.put(parseResult.first, parseResult.second)
+                enterEventsList.add(parseResult.second)
             }
         }
 
         for (l in leaveEvents) {
-            val who = l.who
-            val timeStamp = l.getTimeStampElement()
+            val parseResult = parseExitEvent(millis, l)
 
-            if (timeStamp != null) {
-                val newMillis = millis + timeStamp.millis
-                val event = ExitEvent(timestamp = newMillis, who = who)
-
-                allEvents.put(newMillis, event)
-                exitEventsList.add(event)
+            if (parseResult != null) {
+                allEvents.put(parseResult.first, parseResult.second)
+                exitEventsList.add(parseResult.second)
             }
         }
 
