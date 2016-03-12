@@ -52,4 +52,48 @@ class SimpleTest {
         Assert.assertTrue(result.enterEvents.first().who.equals("ħ"))
         Assert.assertTrue(result.exitEvents.first().who.equals("ckorzhik"))
     }
+
+    @Test
+    fun test3() {
+        val parser = CjrChatLogParser()
+        val result = parser.parse(Date().withZeroedTime(),
+                """
+                |<html>
+                |   <body>
+                |       <a name="20:15:42.123" href="#20:15:42.123" class="ts">[20:15:42]</a>
+                |       <font class="ml">uggi 345 вышел(а) из комнаты</font><br/>
+                |       <a name="20:37:16" href="#20:37:16" class="ts">[20:37:16]</a>
+                |       <font class="mj">ħ 123 зашёл в конференцию</font>
+                |   </body>
+                |</html>""".trimMargin())
+
+        Assert.assertTrue(result.enterEvents.size == 1)
+        Assert.assertTrue(result.exitEvents.size == 1)
+        Assert.assertTrue(result.messageEvents.size == 0)
+        Assert.assertTrue(result.thirdPersonMessageEvent.size == 0)
+        Assert.assertTrue(result.allEvents.size == 2)
+        Assert.assertTrue(result.enterEvents.first().who.equals("ħ 123"))
+        Assert.assertTrue(result.exitEvents.first().who.equals("uggi 345"))
+    }
+
+    @Test
+    fun test4() {
+        val parser = CjrChatLogParser()
+        val result = parser.parse(Date().withZeroedTime(),
+                """
+                |<html>
+                |   <body>
+                |       <a name="abcd" href="#20:15:42.123" class="ts">[20:15:42]</a>
+                |       <font class="ml">uggi 345 вышел(а) из комнаты</font><br/>
+                |       <a name="123213123" href="#20:37:16" class="ts">[20:37:16]</a>
+                |       <font class="mj">ħ 123 зашёл в конференцию</font>
+                |   </body>
+                |</html>""".trimMargin())
+
+        Assert.assertTrue(result.enterEvents.size == 0)
+        Assert.assertTrue(result.exitEvents.size == 0)
+        Assert.assertTrue(result.messageEvents.size == 0)
+        Assert.assertTrue(result.thirdPersonMessageEvent.size == 0)
+        Assert.assertTrue(result.allEvents.size == 0)
+    }
 }

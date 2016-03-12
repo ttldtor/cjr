@@ -2,9 +2,7 @@ package ttldtor
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.jsoup.nodes.Node
 import java.util.*
-import kotlin.properties.Delegates
 
 class CjrChatLogParser: ChatLogParser {
     private companion object {
@@ -13,6 +11,7 @@ class CjrChatLogParser: ChatLogParser {
         final val leaveEventClassName = "ml"
         final val messageEventClassName = "mn"
         final val thirdPersonMessageClassName = "mne"
+        final val joinOrLeaveMessageRegex = """^(.+) (?:зашёл|вышел|вышел|вошёл).+$""".toRegex()
     }
 
     private fun Element.getTimeStampElement(): Element? {
@@ -39,9 +38,14 @@ class CjrChatLogParser: ChatLogParser {
             a, b -> a + b.text()
         }
 
-    private val Element.millis: Long
+    private val Element.millis: Long?
         get() {
             val timeElements = this.attr("name").split(':')
+
+            if (timeElements.size != 3) {
+                return null
+            }
+
             val secondsParts = timeElements[2].split('.')
 
             try {
@@ -54,44 +58,57 @@ class CjrChatLogParser: ChatLogParser {
 
                 return hours * 3600000 + minutes * 60000 + seconds * 1000 + millis
             } catch(_:NumberFormatException) {
-                return 0
+                return null
             }
         }
 
     private val Element.who: String
-        get() = this.collectedText.split(" ")[0]
+        get() = joinOrLeaveMessageRegex.find(this.collectedText)?.groupValues?.get(1) ?: ""
 
-    fun parseEnterEvent(millis: Long, e: Element): Pair<Long, EnterEvent>? {
-        val timeStamp = e.getTimeStampElement()
+    private fun calculateMillis(millis: Long, e: Element): Long? {
+        val timeStampMillis = e.getTimeStampElement()?.millis ?: return null
 
-        if (timeStamp != null) {
-            val newMillis = millis + timeStamp.millis
-            val event = EnterEvent(timestamp = newMillis, who = e.who)
-
-            return Pair(newMillis, event)
-        }
-
-        return null
+        return millis + timeStampMillis
     }
 
-    fun parseExitEvent(millis: Long, e: Element): Pair<Long, ExitEvent>? {
-        val timeStamp = e.getTimeStampElement()
+    private fun parseEnterEvent(millis: Long, e: Element): Pair<Long, EnterEvent>? {
+        val newMillis = calculateMillis(millis, e) ?: return null
+        val event = EnterEvent(timestamp = newMillis, who = e.who)
 
-        if (timeStamp != null) {
-            val newMillis = millis + timeStamp.millis
-            val event = ExitEvent(timestamp = newMillis, who = e.who)
-
-            return Pair(newMillis, event)
-        }
-
-        return null
+        return Pair(newMillis, event)
     }
+
+    private fun parseExitEvent(millis: Long, e: Element): Pair<Long, ExitEvent>? {
+        val newMillis = calculateMillis(millis, e) ?: return null
+        val event = ExitEvent(timestamp = newMillis, who = e.who)
+
+        return Pair(newMillis, event)
+    }
+
+    private fun parseMessageEvent(millis: Long, e: Element): Pair<Long, MessageEvent>? {
+        val newMillis = calculateMillis(millis, e) ?: return null
+        val event = MessageEvent(timestamp = newMillis, who = e.who, message = "")
+
+        return Pair(newMillis, event)
+    }
+
+    private fun parseThirdPersonMessageEvent(millis: Long, e: Element): Pair<Long, ThirdPersonMessageEvent>? {
+        val newMillis = calculateMillis(millis, e) ?: return null
+        val event = ThirdPersonMessageEvent(timestamp = newMillis, who = e.who, message = "")
+
+        return Pair(newMillis, event)
+    }
+
 
     override fun parse(date: Date, fileContents: String): ParseResult {
         val doc = Jsoup.parse(fileContents)
         val millis = date.time
-        val joinEvents = doc.getElementsByClass(joinEventClassName)
-        val leaveEvents = doc.getElementsByClass(leaveEventClassName)
+
+        val joinEventsElements = doc.getElementsByClass(joinEventClassName)
+        val leaveEventsElements = doc.getElementsByClass(leaveEventClassName)
+        val messageEventsElements = doc.getElementsByClass(messageEventClassName)
+        val thirdPersonMessageEventsElements = doc.getElementsByClass(thirdPersonMessageClassName)
+
         val allEvents: MutableMap<Long, IEvent> = mutableMapOf()
         val enterEventsList: MutableList<EnterEvent> = mutableListOf()
         val exitEventsList: MutableList<ExitEvent> = mutableListOf()
@@ -99,7 +116,7 @@ class CjrChatLogParser: ChatLogParser {
         val thirdPersonMessageEventsList: MutableList<ThirdPersonMessageEvent> = mutableListOf()
 
 
-        for (j in joinEvents) {
+        for (j in joinEventsElements) {
             val parseResult = parseEnterEvent(millis, j)
 
             if (parseResult != null) {
@@ -108,12 +125,30 @@ class CjrChatLogParser: ChatLogParser {
             }
         }
 
-        for (l in leaveEvents) {
+        for (l in leaveEventsElements) {
             val parseResult = parseExitEvent(millis, l)
 
             if (parseResult != null) {
                 allEvents.put(parseResult.first, parseResult.second)
                 exitEventsList.add(parseResult.second)
+            }
+        }
+
+        for (m in messageEventsElements) {
+            val parseResult = parseMessageEvent(millis, m)
+
+            if (parseResult != null) {
+                allEvents.put(parseResult.first, parseResult.second)
+                messageEventsList.add(parseResult.second)
+            }
+        }
+
+        for (tp in thirdPersonMessageEventsElements) {
+            val parseResult = parseThirdPersonMessageEvent(millis, tp)
+
+            if (parseResult != null) {
+                allEvents.put(parseResult.first, parseResult.second)
+                thirdPersonMessageEventsList.add(parseResult.second)
             }
         }
 
