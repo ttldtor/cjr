@@ -2,6 +2,8 @@ package ttldtor
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
+import org.jsoup.nodes.Node
+import org.jsoup.nodes.TextNode
 import java.util.*
 
 class CjrChatLogParser: ChatLogParser {
@@ -12,6 +14,7 @@ class CjrChatLogParser: ChatLogParser {
         final val messageEventClassName = "mn"
         final val thirdPersonMessageClassName = "mne"
         final val joinOrLeaveMessageRegex = """^(.+) (?:зашёл|вышел|вышел|вошёл).+$""".toRegex()
+        final val messageRegex = """^<(.+)> .*$""".toRegex(RegexOption.MULTILINE)
     }
 
     private fun Element.getTimeStampElement(): Element? {
@@ -33,10 +36,39 @@ class CjrChatLogParser: ChatLogParser {
         return null
     }
 
-    private val Element.collectedText: String
-        get() = this.textNodes().fold("") {
+    private fun Element.collectText(): String {
+        var text = this.textNodes().fold("") {
             a, b -> a + b.text()
         }
+
+        if (this.hasClass(messageEventClassName)) {
+            var next: Node? = this
+
+            while (true) {
+                next = next?.nextSibling()
+
+                if (next == null) {
+                    break
+                }
+
+                if (next is TextNode) {
+                    text += next.text()
+                } else if (next is Element) {
+                    if (next.tagName() == "a") {
+                        if (next.hasClass(timeStampClassName)) {
+                            break
+                        }
+
+                        text += next.text()
+                    } else if (next.tagName() == "br") {
+                        text += "\n"
+                    }
+                }
+            }
+        }
+
+        return text.trim()
+    }
 
     private val Element.millis: Long?
         get() {
@@ -63,7 +95,15 @@ class CjrChatLogParser: ChatLogParser {
         }
 
     private val Element.who: String
-        get() = joinOrLeaveMessageRegex.find(this.collectedText)?.groupValues?.get(1) ?: ""
+        get() {
+            val result = joinOrLeaveMessageRegex.find(this.collectText())?.groupValues?.get(1) ?: ""
+
+            if (result.isEmpty()) {
+                return messageRegex.find(this.collectText())?.groupValues?.get(1) ?: ""
+            } else {
+                return result
+            }
+        }
 
     private fun calculateMillis(millis: Long, e: Element): Long? {
         val timeStampMillis = e.getTimeStampElement()?.millis ?: return null
@@ -87,14 +127,15 @@ class CjrChatLogParser: ChatLogParser {
 
     private fun parseMessageEvent(millis: Long, e: Element): Pair<Long, MessageEvent>? {
         val newMillis = calculateMillis(millis, e) ?: return null
-        val event = MessageEvent(timestamp = newMillis, who = e.who, message = "")
+        val who = e.who
+        val event = MessageEvent(timestamp = newMillis, who = who, message = e.collectText().replaceFirst("<$who> ", ""))
 
         return Pair(newMillis, event)
     }
 
     private fun parseThirdPersonMessageEvent(millis: Long, e: Element): Pair<Long, ThirdPersonMessageEvent>? {
         val newMillis = calculateMillis(millis, e) ?: return null
-        val event = ThirdPersonMessageEvent(timestamp = newMillis, who = e.who, message = "")
+        val event = ThirdPersonMessageEvent(timestamp = newMillis, who = e.who, message = e.collectText())
 
         return Pair(newMillis, event)
     }
@@ -116,8 +157,8 @@ class CjrChatLogParser: ChatLogParser {
         val thirdPersonMessageEventsList: MutableList<ThirdPersonMessageEvent> = mutableListOf()
 
 
-        for (j in joinEventsElements) {
-            val parseResult = parseEnterEvent(millis, j)
+        for (joinEventElement in joinEventsElements) {
+            val parseResult = parseEnterEvent(millis, joinEventElement)
 
             if (parseResult != null) {
                 allEvents.put(parseResult.first, parseResult.second)
@@ -125,8 +166,8 @@ class CjrChatLogParser: ChatLogParser {
             }
         }
 
-        for (l in leaveEventsElements) {
-            val parseResult = parseExitEvent(millis, l)
+        for (leaveEventElement in leaveEventsElements) {
+            val parseResult = parseExitEvent(millis, leaveEventElement)
 
             if (parseResult != null) {
                 allEvents.put(parseResult.first, parseResult.second)
@@ -134,8 +175,8 @@ class CjrChatLogParser: ChatLogParser {
             }
         }
 
-        for (m in messageEventsElements) {
-            val parseResult = parseMessageEvent(millis, m)
+        for (messageEventElement in messageEventsElements) {
+            val parseResult = parseMessageEvent(millis, messageEventElement)
 
             if (parseResult != null) {
                 allEvents.put(parseResult.first, parseResult.second)
@@ -143,13 +184,43 @@ class CjrChatLogParser: ChatLogParser {
             }
         }
 
-        for (tp in thirdPersonMessageEventsElements) {
-            val parseResult = parseThirdPersonMessageEvent(millis, tp)
+        for (thirdPersonMessageEventElement in thirdPersonMessageEventsElements) {
+            val parseResult = parseThirdPersonMessageEvent(millis, thirdPersonMessageEventElement)
 
             if (parseResult != null) {
                 allEvents.put(parseResult.first, parseResult.second)
                 thirdPersonMessageEventsList.add(parseResult.second)
             }
+        }
+
+        val nicknames: MutableSet<String> = mutableSetOf()
+
+        for (event in allEvents) {
+            val who = event.value.who
+
+            if (who.isNullOrEmpty()) {
+                continue
+            }
+
+            nicknames.add(who)
+        }
+
+        val nicknamesList = nicknames.sortedByDescending { it.length }
+
+        for (thirdPersonMessage in thirdPersonMessageEventsList) {
+            for (nick in nicknamesList) {
+                if (thirdPersonMessage.message.startsWith(nick)) {
+                    thirdPersonMessage.who = nick
+
+                    break
+                }
+            }
+
+            if (thirdPersonMessage.who.isEmpty()) {
+                thirdPersonMessage.who = thirdPersonMessage.message.split(' ')[0]
+            }
+
+            thirdPersonMessage.message = thirdPersonMessage.message.replaceFirst("${thirdPersonMessage.who} ", "")
         }
 
         return ParseResult(enterEventsList, exitEventsList, messageEventsList, thirdPersonMessageEventsList, allEvents);

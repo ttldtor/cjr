@@ -25,7 +25,7 @@ data class MessageEvent(override val message: String,
                         override val timestamp: Long,
                         override val who: String) : IMessageEvent
 
-data class ThirdPersonMessageEvent(override val message: String,
+data class ThirdPersonMessageEvent(override var message: String,
                                    override val type: EventType = EventType.ThirdPersonMessage,
                                    override val timestamp: Long,
-                                   override val who: String) : IMessageEvent
+                                   override var who: String) : IMessageEvent
