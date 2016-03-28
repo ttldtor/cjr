@@ -165,4 +165,28 @@ class SimpleTest {
         Assert.assertTrue(result.thirdPersonMessageEvents[0].who == "ermine")
         Assert.assertTrue(result.thirdPersonMessageEvents[0].message == "покорячила говядину - чем свежее говядина, тем существующий код менее рабочий")
     }
+
+    @Test
+    fun test8() {
+        val parser = CjrChatLogParser()
+        val result = parser.parse(Date().withZeroedTime(),
+                """
+                |<html>
+                |   <body>
+                |       <a name="20:15:42.123" href="#20:15:42.123" class="ts">[20:15:42]</a>
+                |       <font class="mj">ħ 123 зашёл в конференцию</font>
+                |       <a name="20:37:16" href="#20:37:16" class="ts">[20:37:16]</a>
+                |       <font class="mj">ħ зашёл в конференцию</font>
+                |       <a id="21:17:49.826752" name="21:17:49.826752" href="#21:17:49.826752" class="ts">[21:17:49]</a>
+                |       <font class="mne">ħ 123 покорячил говядину - чем свежее говядина, тем существующий код менее рабочий</font><br/>
+                |   </body>
+                |</html>""".trimMargin())
+
+        Assert.assertTrue(result.enterEvents.size == 2)
+        Assert.assertTrue(result.exitEvents.size == 0)
+        Assert.assertTrue(result.messageEvents.size == 0)
+        Assert.assertTrue(result.thirdPersonMessageEvents.size == 1)
+        Assert.assertTrue(result.thirdPersonMessageEvents[0].who == "ħ 123")
+        Assert.assertTrue(result.thirdPersonMessageEvents[0].message == "покорячил говядину - чем свежее говядина, тем существующий код менее рабочий")
+    }
 }
