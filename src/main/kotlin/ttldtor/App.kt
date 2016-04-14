@@ -5,28 +5,18 @@ import javafx.collections.FXCollections
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.scene.Scene
-import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
-import javafx.scene.control.MenuItem
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
-import org.jsoup.Jsoup
 import ttldtor.javafx.models.LogSiteModel
 import ttldtor.javafx.tables.LogSiteTable
 
 fun createMenuBar(): MenuBar {
-    val menuBar = MenuBar()
-    val menuFile = Menu("File")
+    val menuBar = CjrMenuBar()
 
-    val exitItem = MenuItem("Exit")
-
-    exitItem.onAction = EventHandler<ActionEvent> {
+    menuBar.exitMenuItem.onAction = EventHandler<ActionEvent> {
         a -> System.exit(0)
     }
-
-    menuFile.items.addAll(exitItem)
-
-    menuBar.menus.addAll(menuFile, Menu("Edit"))
 
     return menuBar
 }
@@ -42,7 +32,7 @@ class MainGui: Application() {
                         "http://0xd34df00d.me/logs/chat/codingteam@conference.jabber.ru")
                 )
 
-        stage.title = "Test";
+        stage.title = "CJR";
 
         val pane = VBox()
 
