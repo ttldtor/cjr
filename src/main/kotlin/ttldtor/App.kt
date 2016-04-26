@@ -9,6 +9,8 @@ import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import ttldtor.javafx.models.LogSiteModel
 import ttldtor.javafx.tables.LogSiteTable
+import org.flywaydb.core.Flyway
+import java.util.*
 
 class MainGui: Application() {
     override fun start(stage: Stage) {
@@ -62,6 +64,12 @@ class MainGui: Application() {
 }
 
 fun main(args: Array<String>) {
-    print("TEST")
+    Locale.setDefault(Locale.US)
+
+    val flyway = Flyway()
+
+    flyway.setDataSource(Config.databaseUrl, Config.user, Config.password)
+    flyway.migrate()
+
     Application.launch(MainGui().javaClass, *args)
 }
