@@ -11,6 +11,7 @@ class CjrMenuBar(): MenuBar() {
     val editMenu = Menu("Edit")
     val addLogSiteMenuItem = MenuItem("Add log site")
     val addNotifier = MenuItem("Add notifier")
+    val parseLogMenuItem = MenuItem("Parse log")
 
     val viewMenu = Menu("View")
     val viewLogSites = MenuItem("Log sites")
@@ -18,7 +19,7 @@ class CjrMenuBar(): MenuBar() {
 
     init {
         fileMenu.items.addAll(exitMenuItem)
-        editMenu.items.addAll(addLogSiteMenuItem, addNotifier)
+        editMenu.items.addAll(addLogSiteMenuItem, addNotifier, parseLogMenuItem)
         viewMenu.items.addAll(viewLogSites, viewNotifiers)
         this.menus.addAll(fileMenu, editMenu, viewMenu)
     }

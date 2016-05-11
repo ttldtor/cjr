@@ -32,7 +32,18 @@ class AddLogSiteDialog(): Dialog<LogSite>() {
             return@Callback null;
         };
 
+        val onTextChange = javafx.beans.value.ChangeListener<String> { value, old, new ->
+            dialogPane.lookupButton(ButtonType.OK).isDisable = nameText.text.isEmpty()
+                    && conferenceText.text.isEmpty()
+                    && urlText.text.isEmpty()
+        }
+
+        nameText.textProperty().addListener(onTextChange)
+        conferenceText.textProperty().addListener(onTextChange)
+        urlText.textProperty().addListener(onTextChange)
+
         dialogPane.buttonTypes.addAll(ButtonType.OK);
+        dialogPane.lookupButton(ButtonType.OK).isDisable = true
         dialogPane.content = grid;
     }
 }
