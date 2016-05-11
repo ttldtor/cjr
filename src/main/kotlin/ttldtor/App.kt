@@ -1,7 +1,6 @@
 package ttldtor
 
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
 import javafx.scene.Scene
@@ -10,6 +9,8 @@ import javafx.stage.Stage
 import ttldtor.javafx.models.LogSiteModel
 import ttldtor.javafx.tables.LogSiteTable
 import org.flywaydb.core.Flyway
+import ttldtor.javafx.runAsync
+import ttldtor.javafx.ui
 import java.util.*
 
 class MainGui: Application() {
@@ -57,6 +58,17 @@ class MainGui: Application() {
             }
         }
 
+        menuBar.parseLogMenuItem.onAction = EventHandler {
+            val selected = logSiteTable.selectionModel.selectedItems
+
+            if (selected.isNotEmpty()) {
+                runAsync {
+                    ChatLogUrlsCollector().collect(selected[0].url)
+                } ui {result ->
+                    println(result.dateToUrl.size)
+                }
+            }
+        }
 
         stage.scene = Scene(pane, 800.0, 600.0)
         stage.show()
