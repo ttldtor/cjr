@@ -66,6 +66,8 @@ class MainGui: Application() {
                     ChatLogUrlsCollector().collect(selected[0].url)
                 } ui {result ->
                     println(result.dateToUrl.size)
+
+
                 }
             }
         }
@@ -76,7 +78,7 @@ class MainGui: Application() {
 }
 
 fun main(args: Array<String>) {
-    Locale.setDefault(Locale.US)
+    Locale.setDefault(Config.locale)
 
     val flyway = Flyway()
 

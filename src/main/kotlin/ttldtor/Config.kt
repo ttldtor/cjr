@@ -18,4 +18,21 @@ object Config {
 
     val password: String?
         get() = prop.getProperty("password")
+
+    val locale: Locale
+        get() {
+            val l = prop.getProperty("locale")
+
+            if (l.isNullOrEmpty()) {
+                return Locale.getDefault()
+            }
+
+            val splitLocale = l.split("-")
+
+            if (splitLocale.size == 1) {
+                return Locale(splitLocale[0])
+            }
+
+            return Locale(splitLocale[0], splitLocale[1])
+        }
 }
