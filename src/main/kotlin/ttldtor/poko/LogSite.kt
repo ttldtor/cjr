@@ -1,3 +1,5 @@
 package ttldtor.poko
 
-data class LogSite (val name: String, val conference: String, val url: String);
+import java.util.*
+
+data class LogSite (val id: Long, val name: String, val conference: String, val url: String, val lastParsedDate: Date);

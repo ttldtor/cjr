@@ -2,7 +2,8 @@ CREATE TABLE log_site (
     id IDENTITY PRIMARY KEY NOT NULL,
     name varchar UNIQUE,
     conference varchar DEFAULT '' NOT NULL,
-    url varchar DEFAULT '' NOT NULL
+    url varchar DEFAULT '' NOT NULL,
+    last_parsed_timestamp bigint NOT NULL
 );
 
 CREATE TABLE event_type (

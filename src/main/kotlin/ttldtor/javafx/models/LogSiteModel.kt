@@ -5,21 +5,21 @@ import ttldtor.poko.LogSite
 
 class LogSiteModel {
     private val _name: SimpleStringProperty = SimpleStringProperty()
-    public var name: String
+    var name: String
         get() = _name.value
         set(value: String) {
             _name.value = value
         }
 
     private val _conference: SimpleStringProperty = SimpleStringProperty()
-    public var conference: String
+    var conference: String
         get() = _conference.value
         set(value: String) {
             _conference.value = value
         }
 
     private val _url: SimpleStringProperty = SimpleStringProperty()
-    public var url: String
+    var url: String
         get() = _url.value
         set(value: String) {
             _url.value = value

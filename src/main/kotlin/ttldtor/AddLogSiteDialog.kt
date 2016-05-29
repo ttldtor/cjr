@@ -7,6 +7,7 @@ import javafx.scene.control.TextField
 import javafx.scene.layout.GridPane
 import javafx.util.Callback
 import ttldtor.poko.LogSite
+import java.util.*
 
 class AddLogSiteDialog(): Dialog<LogSite>() {
     val grid = GridPane()
@@ -26,7 +27,7 @@ class AddLogSiteDialog(): Dialog<LogSite>() {
 
         resultConverter = Callback {
             if (it == ButtonType.OK) {
-                return@Callback LogSite(name = nameText.text, conference = conferenceText.text, url = urlText.text);
+                return@Callback LogSite(id = -1, name = nameText.text, conference = conferenceText.text, url = urlText.text, lastParsedDate = Date());
             }
 
             return@Callback null;

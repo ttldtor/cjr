@@ -9,6 +9,7 @@ import javafx.stage.Stage
 import ttldtor.javafx.models.LogSiteModel
 import ttldtor.javafx.tables.LogSiteTable
 import org.flywaydb.core.Flyway
+import ttldtor.dao.LogSiteDao
 import ttldtor.javafx.runAsync
 import ttldtor.javafx.ui
 import java.util.*
@@ -54,7 +55,11 @@ class MainGui: Application() {
             val result =  dialog.showAndWait()
 
             result.ifPresent {
-                logSites.add(LogSiteModel(it))
+                val logSite = LogSiteDao.create(it)
+
+                if (logSite != null) {
+                    logSites.add(LogSiteModel(logSite))
+                }
             }
         }
 
