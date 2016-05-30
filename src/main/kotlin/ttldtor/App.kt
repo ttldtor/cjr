@@ -9,10 +9,14 @@ import javafx.stage.Stage
 import ttldtor.javafx.models.LogSiteModel
 import ttldtor.javafx.tables.LogSiteTable
 import org.flywaydb.core.Flyway
+import org.flywaydb.core.api.FlywayException
+import org.h2.tools.Script
 import ttldtor.dao.LogSiteDao
 import ttldtor.javafx.runAsync
 import ttldtor.javafx.ui
+import java.sql.SQLException
 import java.util.*
+import org.slf4j.LoggerFactory;
 
 class MainGui: Application() {
     override fun start(stage: Stage) {
@@ -82,13 +86,70 @@ class MainGui: Application() {
     }
 }
 
+enum class BackupStrategy(val strategyName: String) {
+    MIGRATION_BACKUP("migration_backup.db.zip"),
+    SESSION_BACKUP("session_backup.db.zip")
+}
+
+fun backupDatabase(strategy: BackupStrategy):Boolean {
+    val log = LoggerFactory.getLogger("Cjr")
+    var backupIsCreated = true
+
+    log.info("The backup creating is started. Strategy: ${strategy.name}")
+    ConnectionPool.connection.use {conn ->
+        try {
+            Script.process(conn, "./db_backup/${strategy.strategyName}", "", "COMPRESSION ZIP");
+        } catch (e: SQLException) {
+            log.error("Could not backup the database. ", e)
+            backupIsCreated = false
+        }
+    }
+    log.info("The backup creating is finished: {}", if (backupIsCreated) "OK" else "FAIL")
+
+    return backupIsCreated
+}
+
+fun restoreDatabase(strategy: BackupStrategy):Boolean {
+    val log = LoggerFactory.getLogger("Cjr")
+    var databaseIsRestored = true
+
+    log.info("The database restoring is started. Strategy: ${strategy.name}")
+    ConnectionPool.connection.use {conn ->
+        try {
+            conn.prepareStatement("RUNSCRIPT FROM './db_backup/${strategy.strategyName}' COMPRESSION ZIP").use {st ->
+                st.execute()
+            }
+        } catch (e: SQLException) {
+            log.error("Could not restore the database. ", e)
+            databaseIsRestored = false
+        }
+    }
+    log.info("The database restoring is finished: {}", if (databaseIsRestored) "OK" else "FAIL")
+
+    return databaseIsRestored
+}
+
 fun main(args: Array<String>) {
+    val log = LoggerFactory.getLogger("Cjr")
+
     Locale.setDefault(Config.locale)
 
-    val flyway = Flyway()
+    if (backupDatabase(BackupStrategy.MIGRATION_BACKUP)) {
+        val flyway = Flyway()
 
-    flyway.setDataSource(Config.databaseUrl, Config.user, Config.password)
-    flyway.migrate()
+        flyway.setDataSource(Config.databaseUrl, Config.user, Config.password)
 
-    Application.launch(MainGui().javaClass, *args)
+        try {
+            flyway.migrate()
+            Application.launch(MainGui().javaClass, *args)
+            backupDatabase(BackupStrategy.SESSION_BACKUP)
+        } catch (e: FlywayException) {
+            log.error("Could not migrate the database. ", e)
+
+            flyway.clean()
+            restoreDatabase(BackupStrategy.MIGRATION_BACKUP)
+        }
+    }
+
+    log.warn("Exiting...")
 }
