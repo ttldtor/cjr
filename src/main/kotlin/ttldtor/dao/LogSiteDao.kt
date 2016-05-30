@@ -11,8 +11,6 @@ object LogSiteDao {
 
     fun create(name: String, conference: String, url: String, lastParsedDate: Date): LogSite? {
         return ConnectionPool.connection.use {conn ->
-            conn.autoCommit = true
-
             conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS).use ust@ {st ->
                 st.setString(1, name)
                 st.setString(2, conference)
