@@ -1,7 +1,7 @@
 ALTER TABLE log_site
 ADD IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
 
-ALTER TABLE event RENAME event_event_type_id TO event_event_type_id_fk;
+ALTER TABLE event RENAME CONSTRAINT event_event_type_id TO event_event_type_id_fk;
 
 CREATE TABLE log_site_to_event (
     id IDENTITY PRIMARY KEY NOT NULL,
