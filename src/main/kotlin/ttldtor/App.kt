@@ -37,16 +37,7 @@ class MainGui: Application() {
         logSiteTable.items = logSites
         pane.children.addAll(menuBar, logSiteTable)
 
-        logSites.addAll(
-                LogSiteModel(
-                    "cpp",
-                    "c_plus_plus@conference.jabber.ru",
-                    "http://0xd34df00d.me/logs/chat/c_plus_plus@conference.jabber.ru"),
-                LogSiteModel(
-                    "codingteam",
-                    "codingteam@conference.jabber.ru",
-                    "http://0xd34df00d.me/logs/chat/codingteam@conference.jabber.ru")
-        )
+        logSites.addAll(LogSiteDao.get().map { LogSiteModel(it) })
 
         menuBar.exitMenuItem.onAction = EventHandler {
             System.exit(0)
