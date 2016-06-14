@@ -1,25 +1,26 @@
 package ttldtor
 
-import javafx.application.Application;
+import javafx.application.Application
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
 import javafx.scene.Scene
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
-import ttldtor.ui.javafx.models.LogSiteModel
-import ttldtor.ui.javafx.tables.LogSiteTable
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.FlywayException
 import org.h2.tools.Script
+import org.slf4j.LoggerFactory
+import ttldtor.collectors.ChatLogUrlsCollector
 import ttldtor.dao.LogSiteDao
+import ttldtor.ui.LogSiteDialog
+import ttldtor.ui.CjrMenuBar
+import ttldtor.ui.DialogType
+import ttldtor.ui.javafx.models.LogSiteModel
 import ttldtor.ui.javafx.runAsync
+import ttldtor.ui.javafx.tables.LogSiteTable
 import ttldtor.ui.javafx.ui
 import java.sql.SQLException
 import java.util.*
-import org.slf4j.LoggerFactory;
-import ttldtor.collectors.ChatLogUrlsCollector
-import ttldtor.ui.AddLogSiteDialog
-import ttldtor.ui.CjrMenuBar
 
 class MainGui: Application() {
     override fun start(stage: Stage) {
@@ -48,8 +49,7 @@ class MainGui: Application() {
         }
 
         menuBar.addLogSiteMenuItem.onAction = EventHandler {
-            val dialog = AddLogSiteDialog()
-
+            val dialog = LogSiteDialog(DialogType.NEW, null)
             val result =  dialog.showAndWait()
 
             result.ifPresent {
@@ -60,6 +60,35 @@ class MainGui: Application() {
                 }
             }
         }
+
+        val editSelected = fun ():Unit {
+            val selected = logSiteTable.selectionModel.selectedItem
+            val logSite = LogSiteDao.getById(selected.id)
+
+            if (logSite == null) {
+                logSites.remove(logSiteTable.selectionModel.selectedItem)
+
+                return
+            }
+
+            val dialog = LogSiteDialog(DialogType.EDIT, logSite)
+            val result =  dialog.showAndWait()
+
+            result.ifPresent {
+                if (LogSiteDao.save(it)) {
+                    logSiteTable.selectionModel.selectedItem.set(it)
+                    logSiteTable.refresh()
+                }
+            }
+        }
+
+        logSiteTable.onMouseClicked = EventHandler {e ->
+            if (e.clickCount > 1) {
+                editSelected()
+            }
+        }
+
+        menuBar.editLogSiteMenuItem.onAction = EventHandler { editSelected() }
 
         menuBar.parseLogMenuItem.onAction = EventHandler {
             val selected = logSiteTable.selectionModel.selectedItems
