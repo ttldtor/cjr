@@ -15,19 +15,19 @@ object LogSiteDao {
 
     fun create(name: String, conference: String, url: String, lastParsedDate: Date): LogSite? {
         return ConnectionPool.connection.use { conn ->
-            conn.prepareStatement(CREATE_SQL, Statement.RETURN_GENERATED_KEYS).use ust@ { st ->
+            conn.prepareStatement(CREATE_SQL, Statement.RETURN_GENERATED_KEYS).use useSt@ { st ->
                 st.setString(1, name)
                 st.setString(2, conference)
                 st.setString(3, url)
                 st.setLong(4, lastParsedDate.time)
 
                 if (st.executeUpdate() == 0) {
-                    return@ust null
+                    return@useSt null
                 }
 
-                st.generatedKeys.use ukeys@ {keys ->
+                st.generatedKeys.use useKeys@ {keys ->
                     if (keys.next()) {
-                        return@ukeys LogSite(
+                        return@useKeys LogSite(
                                 id = keys.getLong(1),
                                 name = name,
                                 conference = conference,
@@ -48,45 +48,45 @@ object LogSiteDao {
 
     fun save(logSite: LogSite): Boolean {
         return ConnectionPool.connection.use { conn ->
-            conn.prepareStatement(SAVE_SQL).use ust@ { st ->
+            conn.prepareStatement(SAVE_SQL).use { st ->
                 st.setString(1, logSite.name)
                 st.setString(2, logSite.conference)
                 st.setString(3, logSite.url)
                 st.setLong(4, logSite.lastParsedDate.time)
                 st.setLong(5, logSite.id)
 
-                return@ust st.executeUpdate() == 1
+                st.executeUpdate() == 1
             }
         }
     }
 
     fun delete(logSite: LogSite): Boolean {
         return ConnectionPool.connection.use { conn ->
-            conn.prepareStatement(DELETE_SQL).use ust@ { st ->
+            conn.prepareStatement(DELETE_SQL).use { st ->
                 st.setLong(1, logSite.id)
 
-                return@ust st.executeUpdate() == 1
+                st.executeUpdate() == 1
             }
         }
     }
 
     fun getById(id: Long): LogSite? {
         return ConnectionPool.connection.use { conn ->
-            conn.prepareStatement(GET_BY_ID_SQL).use ust@ { st ->
+            conn.prepareStatement(GET_BY_ID_SQL).use { st ->
                 st.setLong(1, id)
 
-                st.executeQuery().use urs@ {resultSet ->
+                st.executeQuery().use useResultSet@ { resultSet ->
                     if (resultSet.next()) {
-                        return@urs LogSite(
+                        return@useResultSet LogSite(
                                 id = resultSet.getLong(1),
                                 name = resultSet.getString(2),
                                 conference = resultSet.getString(3),
                                 url = resultSet.getString(4),
                                 lastParsedDate = Date(resultSet.getLong(5)),
                                 deleted = false)
-                    } else {
-                        return@urs  null
                     }
+
+                    null
                 }
             }
         }
@@ -94,9 +94,8 @@ object LogSiteDao {
 
     fun get(): List<LogSite> {
         return ConnectionPool.connection.use { conn ->
-            conn.prepareStatement(GET_SQL).use ust@ { st ->
-
-                st.executeQuery().use urs@ {resultSet ->
+            conn.prepareStatement(GET_SQL).use { st ->
+                st.executeQuery().use { resultSet ->
                     val result = arrayListOf<LogSite>()
 
                     while (resultSet.next()) {
@@ -109,7 +108,7 @@ object LogSiteDao {
                                 deleted = false))
                     }
 
-                    return@urs result
+                    result
                 }
             }
         }
