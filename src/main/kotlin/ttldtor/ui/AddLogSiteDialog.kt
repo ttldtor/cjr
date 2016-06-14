@@ -1,5 +1,6 @@
-package ttldtor
+package ttldtor.ui
 
+import javafx.beans.value.ChangeListener
 import javafx.scene.control.ButtonType
 import javafx.scene.control.Dialog
 import javafx.scene.control.Label
@@ -39,7 +40,7 @@ class AddLogSiteDialog(): Dialog<LogSite>() {
             return@Callback null;
         };
 
-        val onTextChange = javafx.beans.value.ChangeListener<String> { value, old, new ->
+        val onTextChange = ChangeListener<String> { value, old, new ->
             dialogPane.lookupButton(ButtonType.OK).isDisable = nameText.text.isEmpty()
                     && conferenceText.text.isEmpty()
                     && urlText.text.isEmpty()

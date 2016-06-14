@@ -2,6 +2,7 @@ package ttldtor
 
 import org.junit.Assert
 import org.junit.Test
+import ttldtor.parsers.CjrChatLogParser
 import java.util.*
 
 class SimpleTest {

@@ -1,4 +1,4 @@
-package ttldtor
+package ttldtor.ui
 
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar

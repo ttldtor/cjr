@@ -1,4 +1,4 @@
-package ttldtor
+package ttldtor.collectors
 
 import java.util.*
 

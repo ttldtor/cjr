@@ -1,4 +1,4 @@
-package ttldtor.javafx
+package ttldtor.ui.javafx
 
 import javafx.application.Platform
 import javafx.concurrent.Task

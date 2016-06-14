@@ -1,9 +1,11 @@
-package ttldtor
+package ttldtor.parsers
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
+import ttldtor.*
+import ttldtor.entities.*
 import java.util.*
 
 class CjrChatLogParser: ChatLogParser {

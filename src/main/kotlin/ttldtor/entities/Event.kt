@@ -1,4 +1,4 @@
-package ttldtor
+package ttldtor.entities
 
 enum class EventType {Message, ThirdPersonMessage, Enter, Exit}
 

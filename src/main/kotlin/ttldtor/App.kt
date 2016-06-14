@@ -6,17 +6,20 @@ import javafx.event.EventHandler
 import javafx.scene.Scene
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
-import ttldtor.javafx.models.LogSiteModel
-import ttldtor.javafx.tables.LogSiteTable
+import ttldtor.ui.javafx.models.LogSiteModel
+import ttldtor.ui.javafx.tables.LogSiteTable
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.FlywayException
 import org.h2.tools.Script
 import ttldtor.dao.LogSiteDao
-import ttldtor.javafx.runAsync
-import ttldtor.javafx.ui
+import ttldtor.ui.javafx.runAsync
+import ttldtor.ui.javafx.ui
 import java.sql.SQLException
 import java.util.*
 import org.slf4j.LoggerFactory;
+import ttldtor.collectors.ChatLogUrlsCollector
+import ttldtor.ui.AddLogSiteDialog
+import ttldtor.ui.CjrMenuBar
 
 class MainGui: Application() {
     override fun start(stage: Stage) {

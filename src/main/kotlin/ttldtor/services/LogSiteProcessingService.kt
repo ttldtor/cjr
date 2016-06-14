@@ -1,13 +1,13 @@
-package ttldtor
+package ttldtor.services
 
 import javafx.collections.ListChangeListener
 import javafx.collections.ObservableList
-import ttldtor.javafx.models.LogSiteModel
+import ttldtor.ui.javafx.models.LogSiteModel
 
 class LogSiteProcessingService(logSiteModels: ObservableList<LogSiteModel>) {
     init {
-        logSiteModels.addListener(ListChangeListener { change->
-            while(change.next()) {
+        logSiteModels.addListener(ListChangeListener { change ->
+            while (change.next()) {
                 if (change.wasAdded()) {
 
                 }

@@ -1,4 +1,4 @@
-package ttldtor
+package ttldtor.collectors
 
 import org.jsoup.Jsoup
 import java.util.*

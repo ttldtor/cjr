@@ -1,8 +1,8 @@
-package ttldtor.javafx.tables
+package ttldtor.ui.javafx.tables
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.control.cell.PropertyValueFactory
-import ttldtor.javafx.models.LogSiteModel
+import ttldtor.ui.javafx.models.LogSiteModel
 
 class LogSiteTable(): TableView<LogSiteModel>() {
     private val nameColumn= TableColumn<LogSiteModel, String>("Name")

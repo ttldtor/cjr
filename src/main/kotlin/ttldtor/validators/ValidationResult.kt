@@ -1,4 +1,4 @@
-package ttldtor
+package ttldtor.validators
 
 enum class ValidationResultType {
     OK, ERROR, WARNING

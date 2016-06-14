@@ -1,4 +1,4 @@
-package ttldtor
+package ttldtor.parsers
 
 import java.util.*
 

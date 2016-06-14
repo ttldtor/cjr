@@ -1,4 +1,4 @@
-package ttldtor.javafx.models
+package ttldtor.ui.javafx.models
 
 import javafx.beans.property.*
 import ttldtor.poko.LogSite
