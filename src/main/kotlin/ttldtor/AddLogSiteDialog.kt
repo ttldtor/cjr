@@ -27,7 +27,13 @@ class AddLogSiteDialog(): Dialog<LogSite>() {
 
         resultConverter = Callback {
             if (it == ButtonType.OK) {
-                return@Callback LogSite(id = -1, name = nameText.text, conference = conferenceText.text, url = urlText.text, lastParsedDate = Date());
+                return@Callback LogSite(
+                        id = -1,
+                        name = nameText.text,
+                        conference = conferenceText.text,
+                        url = urlText.text, lastParsedDate = Date(),
+                        deleted = false
+                );
             }
 
             return@Callback null;

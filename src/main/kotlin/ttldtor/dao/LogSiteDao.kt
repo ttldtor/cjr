@@ -9,6 +9,9 @@ import java.sql.Statement
 object LogSiteDao {
     val CREATE_SQL = "INSERT INTO log_site (name, conference, url, last_parsed_timestamp) VALUES (?, ?, ?, ?)"
     val SAVE_SQL = "UPDATE log_site SET name = ?, conference = ?, url = ?, last_parsed_timestamp = ? WHERE id = ?"
+    val DELETE_SQL = "UPDATE log_site SET deleted = TRUE WHERE id = ?"
+    val GET_BY_ID_SQL = "SELECT * FROM log_site WHERE id = ? AND (deleted IS NULL OR (deleted IS NOT NULL AND deleted = FALSE))"
+    val GET_SQL = "SELECT * FROM log_site WHERE deleted IS NULL OR (deleted IS NOT NULL AND deleted = FALSE)"
 
     fun create(name: String, conference: String, url: String, lastParsedDate: Date): LogSite? {
         return ConnectionPool.connection.use { conn ->
@@ -24,7 +27,13 @@ object LogSiteDao {
 
                 st.generatedKeys.use ukeys@ {keys ->
                     if (keys.next()) {
-                        return@ukeys LogSite(keys.getLong(1), name, conference, url, lastParsedDate)
+                        return@ukeys LogSite(
+                                id = keys.getLong(1),
+                                name = name,
+                                conference = conference,
+                                url = url,
+                                lastParsedDate = lastParsedDate,
+                                deleted = false)
                     }
 
                     null
@@ -47,6 +56,61 @@ object LogSiteDao {
                 st.setLong(5, logSite.id)
 
                 return@ust st.executeUpdate() == 1
+            }
+        }
+    }
+
+    fun delete(logSite: LogSite): Boolean {
+        return ConnectionPool.connection.use { conn ->
+            conn.prepareStatement(DELETE_SQL).use ust@ { st ->
+                st.setLong(1, logSite.id)
+
+                return@ust st.executeUpdate() == 1
+            }
+        }
+    }
+
+    fun getById(id: Long): LogSite? {
+        return ConnectionPool.connection.use { conn ->
+            conn.prepareStatement(GET_BY_ID_SQL).use ust@ { st ->
+                st.setLong(1, id)
+
+                st.executeQuery().use urs@ {resultSet ->
+                    if (resultSet.next()) {
+                        return@urs LogSite(
+                                id = resultSet.getLong(1),
+                                name = resultSet.getString(2),
+                                conference = resultSet.getString(3),
+                                url = resultSet.getString(4),
+                                lastParsedDate = Date(resultSet.getLong(5)),
+                                deleted = false)
+                    } else {
+                        return@urs  null
+                    }
+                }
+            }
+        }
+    }
+
+    fun get(): List<LogSite> {
+        return ConnectionPool.connection.use { conn ->
+            conn.prepareStatement(GET_SQL).use ust@ { st ->
+
+                st.executeQuery().use urs@ {resultSet ->
+                    val result = arrayListOf<LogSite>()
+
+                    while (resultSet.next()) {
+                        result.add(LogSite(
+                                id = resultSet.getLong(1),
+                                name = resultSet.getString(2),
+                                conference = resultSet.getString(3),
+                                url = resultSet.getString(4),
+                                lastParsedDate = Date(resultSet.getLong(5)),
+                                deleted = false))
+                    }
+
+                    return@urs result
+                }
             }
         }
     }
