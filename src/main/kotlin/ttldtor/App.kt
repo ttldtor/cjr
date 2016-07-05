@@ -4,6 +4,8 @@ import javafx.application.Application
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
 import javafx.scene.Scene
+import javafx.scene.control.Alert
+import javafx.scene.control.ButtonType
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.flywaydb.core.Flyway
@@ -66,7 +68,8 @@ class MainGui: Application() {
             val logSite = LogSiteDao.getById(selected.id)
 
             if (logSite == null) {
-                logSites.remove(logSiteTable.selectionModel.selectedItem)
+                logSites.remove(selected)
+                logSiteTable.refresh()
 
                 return
             }
@@ -76,7 +79,7 @@ class MainGui: Application() {
 
             result.ifPresent {
                 if (LogSiteDao.save(it)) {
-                    logSiteTable.selectionModel.selectedItem.set(it)
+                    selected.set(it)
                     logSiteTable.refresh()
                 }
             }
@@ -89,6 +92,26 @@ class MainGui: Application() {
         }
 
         menuBar.editLogSiteMenuItem.onAction = EventHandler { editSelected() }
+
+        menuBar.deleteLogSiteMenuItem.onAction = EventHandler {
+            val selected = logSiteTable.selectionModel.selectedItem
+            val logSite = LogSiteDao.getById(selected.id)
+
+            if (logSite == null) {
+                logSites.remove(selected)
+            } else {
+                val confirm = Alert(Alert.AlertType.CONFIRMATION)
+
+                confirm.title = "Delete entity"
+                confirm.headerText = "Do you want to delete this log site record?"
+                confirm.showAndWait().ifPresent {
+                    if (it == ButtonType.OK && LogSiteDao.delete(logSite)) {
+                        logSites.remove(selected)
+                        logSiteTable.refresh()
+                    }
+                }
+            }
+        }
 
         menuBar.parseLogMenuItem.onAction = EventHandler {
             val selected = logSiteTable.selectionModel.selectedItems
