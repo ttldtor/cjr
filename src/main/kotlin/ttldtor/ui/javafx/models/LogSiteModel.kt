@@ -2,6 +2,7 @@ package ttldtor.ui.javafx.models
 
 import javafx.beans.property.*
 import ttldtor.poko.LogSite
+import java.util.*
 
 class LogSiteModel {
     private val _id = SimpleLongProperty()
@@ -32,11 +33,19 @@ class LogSiteModel {
             _url.value = value
         }
 
-    constructor(id: Long, name: String, conference: String, url: String) {
+    private val _lastParsedDate = SimpleObjectProperty<Date>()
+    var lastParsedDate: Date
+        get() = _lastParsedDate.value
+        set(value: Date) {
+            _lastParsedDate.value = value
+        }
+
+    constructor(id: Long, name: String, conference: String, url: String, lastParsedDate: Date) {
         this.id = id
         this.name = name
         this.conference = conference
         this.url = url
+        this.lastParsedDate = lastParsedDate
     }
 
     constructor(poko: LogSite) {
@@ -44,6 +53,7 @@ class LogSiteModel {
         this.name = poko.name
         this.conference = poko.conference
         this.url = poko.url
+        this.lastParsedDate = poko.lastParsedDate
     }
 
     fun set(poko: LogSite) {
@@ -51,5 +61,6 @@ class LogSiteModel {
         this.name = poko.name
         this.conference = poko.conference
         this.url = poko.url
+        this.lastParsedDate = poko.lastParsedDate
     }
 }

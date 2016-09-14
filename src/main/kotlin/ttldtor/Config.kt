@@ -35,4 +35,15 @@ object Config {
 
             return Locale(splitLocale[0], splitLocale[1])
         }
+
+    val processingDelay: Int
+        get() {
+            val d = prop.getProperty("processingDelay", "10")
+
+            try {
+                return Integer.parseInt(d)
+            } catch (e: NumberFormatException)  {
+                return 10
+            }
+        }
 }

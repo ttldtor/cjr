@@ -10,7 +10,7 @@ import javafx.util.Callback
 import ttldtor.poko.LogSite
 import java.util.*
 
-class LogSiteDialog(val dialogType: DialogType, val initValue: LogSite?): Dialog<LogSite>() {
+class LogSiteDialog(dialogType: DialogType, val initValue: LogSite?): Dialog<LogSite>() {
     val grid = GridPane()
     val nameLabel = Label("Name:")
     val nameText = TextField()
@@ -20,7 +20,7 @@ class LogSiteDialog(val dialogType: DialogType, val initValue: LogSite?): Dialog
     val urlText = TextField()
 
     init {
-        var readOnly = false;
+        var readOnly = false
 
         when (dialogType) {
             DialogType.NEW -> {
@@ -36,7 +36,7 @@ class LogSiteDialog(val dialogType: DialogType, val initValue: LogSite?): Dialog
             else -> {
                 title = "Log site"
                 headerText = "Log site parameters"
-                readOnly = true;
+                readOnly = true
             }
         }
 
@@ -44,9 +44,9 @@ class LogSiteDialog(val dialogType: DialogType, val initValue: LogSite?): Dialog
         conferenceText.text = initValue?.conference ?: ""
         urlText.text = initValue?.url ?: ""
 
-        nameText.isEditable = !readOnly;
-        conferenceText.isEditable = !readOnly;
-        urlText.isEditable = !readOnly;
+        nameText.isEditable = !readOnly
+        conferenceText.isEditable = !readOnly
+        urlText.isEditable = !readOnly
 
         grid.addRow(0, nameLabel, nameText)
         grid.addRow(1, conferenceLabel, conferenceText)
@@ -54,7 +54,7 @@ class LogSiteDialog(val dialogType: DialogType, val initValue: LogSite?): Dialog
 
         resultConverter = Callback {
             if (readOnly) {
-                return@Callback initValue;
+                return@Callback initValue
             }
 
             if (it == ButtonType.OK) {
@@ -65,11 +65,11 @@ class LogSiteDialog(val dialogType: DialogType, val initValue: LogSite?): Dialog
                         url = urlText.text,
                         lastParsedDate = initValue?.lastParsedDate ?: Date(0),
                         deleted = false
-                );
+                )
             }
 
-            return@Callback initValue ?: null;
-        };
+            return@Callback initValue ?: null
+        }
 
         if (!readOnly) {
             val onTextChange = ChangeListener<String> { value, old, new ->
@@ -85,8 +85,8 @@ class LogSiteDialog(val dialogType: DialogType, val initValue: LogSite?): Dialog
             urlText.textProperty().addListener(onTextChange)
         }
 
-        dialogPane.buttonTypes.addAll(ButtonType.OK);
+        dialogPane.buttonTypes.addAll(ButtonType.OK)
         dialogPane.lookupButton(ButtonType.OK).isDisable = !readOnly
-        dialogPane.content = grid;
+        dialogPane.content = grid
     }
 }

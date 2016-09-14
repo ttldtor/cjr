@@ -1,13 +1,16 @@
 package ttldtor.collectors
 
 import org.jsoup.Jsoup
+import org.slf4j.LoggerFactory
 import java.util.*
 
 class ChatLogUrlsCollector {
-    fun collectDateParts(url: String, datePartRegex: Regex): MutableMap<Int, String> {
-        val conn = Jsoup.connect(url)
+    val log = LoggerFactory.getLogger("ChatLogUrlsCollector")
 
+    fun collectDateParts(url: String, datePartRegex: Regex): MutableMap<Int, String> {
         try {
+            val conn = Jsoup.connect(url)
+
             val doc = conn.get()
             val anchorElements = doc.getElementsByTag("a")
 
@@ -33,7 +36,9 @@ class ChatLogUrlsCollector {
             }
 
             return result
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            log.error("Error! ", e)
+
             return mutableMapOf()
         }
     }
