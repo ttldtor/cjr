@@ -14,8 +14,8 @@ object LogSiteDao {
     val GET_SQL = "SELECT * FROM log_site WHERE deleted IS NULL OR (deleted IS NOT NULL AND deleted = FALSE)"
 
     fun create(name: String, conference: String, url: String, lastParsedDate: Date): LogSite? {
-        return ConnectionPool.connection.use { conn ->
-            conn.prepareStatement(CREATE_SQL, Statement.RETURN_GENERATED_KEYS).use useSt@ { st ->
+        return ConnectionPool.connection use { conn ->
+            conn.prepareStatement(CREATE_SQL, Statement.RETURN_GENERATED_KEYS) use useSt@ { st ->
                 st.setString(1, name)
                 st.setString(2, conference)
                 st.setString(3, url)
@@ -25,7 +25,7 @@ object LogSiteDao {
                     return@useSt null
                 }
 
-                st.generatedKeys.use useKeys@ {keys ->
+                st.generatedKeys use useKeys@ {keys ->
                     if (keys.next()) {
                         return@useKeys LogSite(
                                 id = keys.getLong(1),
@@ -47,8 +47,8 @@ object LogSiteDao {
     }
 
     fun save(logSite: LogSite): Boolean {
-        return ConnectionPool.connection.use { conn ->
-            conn.prepareStatement(SAVE_SQL).use { st ->
+        return ConnectionPool.connection use { conn ->
+            conn.prepareStatement(SAVE_SQL) use { st ->
                 st.setString(1, logSite.name)
                 st.setString(2, logSite.conference)
                 st.setString(3, logSite.url)
@@ -61,8 +61,8 @@ object LogSiteDao {
     }
 
     fun delete(logSite: LogSite): Boolean {
-        return ConnectionPool.connection.use { conn ->
-            conn.prepareStatement(DELETE_SQL).use { st ->
+        return ConnectionPool.connection use { conn ->
+            conn.prepareStatement(DELETE_SQL) use { st ->
                 st.setLong(1, logSite.id)
 
                 st.executeUpdate() == 1
@@ -71,11 +71,11 @@ object LogSiteDao {
     }
 
     fun getById(id: Long): LogSite? {
-        return ConnectionPool.connection.use { conn ->
-            conn.prepareStatement(GET_BY_ID_SQL).use { st ->
+        return ConnectionPool.connection use { conn ->
+            conn.prepareStatement(GET_BY_ID_SQL) use { st ->
                 st.setLong(1, id)
 
-                st.executeQuery().use useResultSet@ { resultSet ->
+                st.executeQuery() use useResultSet@ { resultSet ->
                     if (resultSet.next()) {
                         return@useResultSet LogSite(
                                 id = resultSet.getLong(1),
@@ -93,8 +93,8 @@ object LogSiteDao {
     }
 
     fun get(): List<LogSite> {
-        return ConnectionPool.connection.use { conn ->
-            conn.prepareStatement(GET_SQL).use { st ->
+        return ConnectionPool.connection use { conn ->
+            conn.prepareStatement(GET_SQL) use { st ->
                 st.executeQuery().use { resultSet ->
                     val result = arrayListOf<LogSite>()
 
