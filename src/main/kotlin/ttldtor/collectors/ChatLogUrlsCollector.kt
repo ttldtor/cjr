@@ -1,11 +1,12 @@
 package ttldtor.collectors
 
 import org.jsoup.Jsoup
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 
 class ChatLogUrlsCollector {
-    val log = LoggerFactory.getLogger("ChatLogUrlsCollector")
+    val log: Logger = LoggerFactory.getLogger("ChatLogUrlsCollector")
 
     fun collectDateParts(url: String, datePartRegex: Regex): MutableMap<Int, String> {
         try {

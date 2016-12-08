@@ -47,11 +47,11 @@ class SimpleTest {
 
         Assert.assertTrue(result.enterEvents.size == 1)
         Assert.assertTrue(result.exitEvents.size == 1)
-        Assert.assertTrue(result.messageEvents.size == 0)
-        Assert.assertTrue(result.thirdPersonMessageEvents.size == 0)
+        Assert.assertTrue(result.messageEvents.isEmpty())
+        Assert.assertTrue(result.thirdPersonMessageEvents.isEmpty())
         Assert.assertTrue(result.allEvents.size == 2)
-        Assert.assertTrue(result.enterEvents.first().who.equals("ħ"))
-        Assert.assertTrue(result.exitEvents.first().who.equals("ckorzhik"))
+        Assert.assertTrue(result.enterEvents.first().who == "ħ")
+        Assert.assertTrue(result.exitEvents.first().who == "ckorzhik")
     }
 
     @Test
@@ -70,11 +70,11 @@ class SimpleTest {
 
         Assert.assertTrue(result.enterEvents.size == 1)
         Assert.assertTrue(result.exitEvents.size == 1)
-        Assert.assertTrue(result.messageEvents.size == 0)
-        Assert.assertTrue(result.thirdPersonMessageEvents.size == 0)
+        Assert.assertTrue(result.messageEvents.isEmpty())
+        Assert.assertTrue(result.thirdPersonMessageEvents.isEmpty())
         Assert.assertTrue(result.allEvents.size == 2)
-        Assert.assertTrue(result.enterEvents.first().who.equals("ħ 123"))
-        Assert.assertTrue(result.exitEvents.first().who.equals("uggi 345"))
+        Assert.assertTrue(result.enterEvents.first().who == "ħ 123")
+        Assert.assertTrue(result.exitEvents.first().who == "uggi 345")
     }
 
     @Test
@@ -91,11 +91,11 @@ class SimpleTest {
                 |   </body>
                 |</html>""".trimMargin())
 
-        Assert.assertTrue(result.enterEvents.size == 0)
-        Assert.assertTrue(result.exitEvents.size == 0)
-        Assert.assertTrue(result.messageEvents.size == 0)
-        Assert.assertTrue(result.thirdPersonMessageEvents.size == 0)
-        Assert.assertTrue(result.allEvents.size == 0)
+        Assert.assertTrue(result.enterEvents.isEmpty())
+        Assert.assertTrue(result.exitEvents.isEmpty())
+        Assert.assertTrue(result.messageEvents.isEmpty())
+        Assert.assertTrue(result.thirdPersonMessageEvents.isEmpty())
+        Assert.assertTrue(result.allEvents.isEmpty())
     }
 
     @Test
@@ -114,12 +114,12 @@ class SimpleTest {
                 |   </body>
                 |</html>""".trimMargin())
 
-        Assert.assertTrue(result.enterEvents.size == 0)
-        Assert.assertTrue(result.exitEvents.size == 0)
+        Assert.assertTrue(result.enterEvents.isEmpty())
+        Assert.assertTrue(result.exitEvents.isEmpty())
         Assert.assertTrue(result.messageEvents.size == 1)
         Assert.assertTrue(result.messageEvents[0].who == "ħ")
         Assert.assertTrue(result.messageEvents[0].message == "где мантикор?")
-        Assert.assertTrue(result.thirdPersonMessageEvents.size == 0)
+        Assert.assertTrue(result.thirdPersonMessageEvents.isEmpty())
         Assert.assertTrue(result.allEvents.size == 1)
     }
 
@@ -137,14 +137,14 @@ class SimpleTest {
                 |   </body>
                 |</html>""".trimMargin())
 
-        Assert.assertTrue(result.enterEvents.size == 0)
-        Assert.assertTrue(result.exitEvents.size == 0)
+        Assert.assertTrue(result.enterEvents.isEmpty())
+        Assert.assertTrue(result.exitEvents.isEmpty())
         Assert.assertTrue(result.messageEvents.size == 2)
         Assert.assertTrue(result.messageEvents[0].who == "gr_buza@arbeiten")
         Assert.assertTrue(result.messageEvents[0].message == "153-34-168-192:~ eill$ host draw.io\ndraw.io has address 216.239.38.21\ndraw.io has address 216.239.34.21\ndraw.io has address 216.239.36.21\ndraw.io has address 216.239.32.21\ndraw.io has IPv6 address 2001:4860:4802:38::15\ndraw.io has IPv6 address 2001:4860:4802:32::15\ndraw.io has IPv6 address 2001:4860:4802:34::15\ndraw.io has IPv6 address 2001:4860:4802:36::15\ndraw.io mail is handled by 5 alt1.aspmx.l.google.com.\ndraw.io mail is handled by 10 aspmx2.googlemail.com.\ndraw.io mail is handled by 5 alt2.aspmx.l.google.com.\ndraw.io mail is handled by 1 aspmx.l.google.com.")
         Assert.assertTrue(result.messageEvents[1].who == "gr_buza@arbeiten")
         Assert.assertTrue(result.messageEvents[1].message == "держи http://lenta.ru/news/2016/03/25/baldyandex/")
-        Assert.assertTrue(result.thirdPersonMessageEvents.size == 0)
+        Assert.assertTrue(result.thirdPersonMessageEvents.isEmpty())
     }
 
     @Test
@@ -159,9 +159,9 @@ class SimpleTest {
                 |   </body>
                 |</html>""".trimMargin())
 
-        Assert.assertTrue(result.enterEvents.size == 0)
-        Assert.assertTrue(result.exitEvents.size == 0)
-        Assert.assertTrue(result.messageEvents.size == 0)
+        Assert.assertTrue(result.enterEvents.isEmpty())
+        Assert.assertTrue(result.exitEvents.isEmpty())
+        Assert.assertTrue(result.messageEvents.isEmpty())
         Assert.assertTrue(result.thirdPersonMessageEvents.size == 1)
         Assert.assertTrue(result.thirdPersonMessageEvents[0].who == "ermine")
         Assert.assertTrue(result.thirdPersonMessageEvents[0].message == "покорячила говядину - чем свежее говядина, тем существующий код менее рабочий")
@@ -184,8 +184,8 @@ class SimpleTest {
                 |</html>""".trimMargin())
 
         Assert.assertTrue(result.enterEvents.size == 2)
-        Assert.assertTrue(result.exitEvents.size == 0)
-        Assert.assertTrue(result.messageEvents.size == 0)
+        Assert.assertTrue(result.exitEvents.isEmpty())
+        Assert.assertTrue(result.messageEvents.isEmpty())
         Assert.assertTrue(result.thirdPersonMessageEvents.size == 1)
         Assert.assertTrue(result.thirdPersonMessageEvents[0].who == "ħ 123")
         Assert.assertTrue(result.thirdPersonMessageEvents[0].message == "покорячил говядину - чем свежее говядина, тем существующий код менее рабочий")

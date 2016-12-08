@@ -4,14 +4,12 @@ import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.util.Callback
-import tornadofx.property
 import ttldtor.ui.javafx.models.LogSiteModel
 import java.text.SimpleDateFormat
-import java.util.*
 
 class LogSiteTable(): TableView<LogSiteModel>() {
     private val idColumn = TableColumn<LogSiteModel, Long>("Id").apply {
-        isVisible = false;
+        isVisible = false
     }
 
     private val nameColumn = TableColumn<LogSiteModel, String>("Name")

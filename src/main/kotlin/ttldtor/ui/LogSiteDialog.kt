@@ -68,7 +68,7 @@ class LogSiteDialog(dialogType: DialogType, val initValue: LogSite?): Dialog<Log
                 )
             }
 
-            return@Callback initValue ?: null
+            return@Callback initValue
         }
 
         if (!readOnly) {

@@ -4,19 +4,18 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
-import ttldtor.*
 import ttldtor.entities.*
 import java.util.*
 
 class CjrChatLogParser: ChatLogParser {
     private companion object {
-        final val timeStampClassName = "ts"
-        final val joinEventClassName = "mj"
-        final val leaveEventClassName = "ml"
-        final val messageEventClassName = "mn"
-        final val thirdPersonMessageClassName = "mne"
-        final val joinOrLeaveMessageRegex = """^(.+) (?:зашёл|вышел|вышел|вошёл).+$""".toRegex()
-        final val messageRegex = """^<(.+)> .*$""".toRegex(RegexOption.MULTILINE)
+        val timeStampClassName = "ts"
+        val joinEventClassName = "mj"
+        val leaveEventClassName = "ml"
+        val messageEventClassName = "mn"
+        val thirdPersonMessageClassName = "mne"
+        val joinOrLeaveMessageRegex = """^(.+) (?:зашёл|вышел|вышел|вошёл).+$""".toRegex()
+        val messageRegex = """^<(.+)> .*$""".toRegex(RegexOption.MULTILINE)
     }
 
     private fun Element.getTimeStampElement(): Element? {
@@ -24,7 +23,7 @@ class CjrChatLogParser: ChatLogParser {
 
         while (prev != null) {
             if (prev.hasClass(timeStampClassName)) {
-                return prev;
+                return prev
             }
 
             if (prev.hasClass(joinEventClassName)
@@ -197,8 +196,8 @@ class CjrChatLogParser: ChatLogParser {
 
         val nicknames: MutableSet<String> = mutableSetOf()
 
-        for (event in allEvents) {
-            val who = event.value.who
+        for ((key, value) in allEvents) {
+            val who = value.who
 
             if (who.isNullOrEmpty()) {
                 continue
@@ -225,6 +224,6 @@ class CjrChatLogParser: ChatLogParser {
             thirdPersonMessage.message = thirdPersonMessage.message.replaceFirst("${thirdPersonMessage.who} ", "")
         }
 
-        return ParseResult(enterEventsList, exitEventsList, messageEventsList, thirdPersonMessageEventsList, allEvents);
+        return ParseResult(enterEventsList, exitEventsList, messageEventsList, thirdPersonMessageEventsList, allEvents)
     }
 }

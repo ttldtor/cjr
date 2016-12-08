@@ -8,7 +8,7 @@ mainClassName = 'ttldtor.AppKt'
 sourceCompatibility = 1.8
 
 buildscript {
-    ext.kotlin_version = '1.0.3'
+    ext.kotlin_version = '1.0.5'
     repositories {
         mavenCentral()
         jcenter()

@@ -14,13 +14,14 @@ import org.h2.tools.Script
 import org.slf4j.LoggerFactory
 import ttldtor.collectors.ChatLogUrlsCollector
 import ttldtor.dao.LogSiteDao
-import ttldtor.ui.LogSiteDialog
 import ttldtor.ui.CjrMenuBar
 import ttldtor.ui.DialogType
+import ttldtor.ui.LogSiteDialog
 import ttldtor.ui.javafx.models.LogSiteModel
 import ttldtor.ui.javafx.runAsync
 import ttldtor.ui.javafx.tables.LogSiteTable
 import ttldtor.ui.javafx.ui
+import java.sql.PreparedStatement
 import java.sql.SQLException
 import java.util.*
 
@@ -35,12 +36,12 @@ class MainGui: Application() {
             menuBar.addLogSiteMenuItem.isDisable = !new
         })
 
-        stage.title = "CJR";
+        stage.title = "CJR"
         logSiteTable.isVisible = false
         logSiteTable.items = logSites
         pane.children.addAll(menuBar, logSiteTable)
 
-        logSites.addAll(LogSiteDao.get().map { LogSiteModel(it) })
+        logSites.addAll(LogSiteDao.get().map(::LogSiteModel))
 
         menuBar.exitMenuItem.onAction = EventHandler {
             System.exit(0)
@@ -69,7 +70,7 @@ class MainGui: Application() {
 
             if (logSite == null) {
                 logSites.remove(selected)
-                logSiteTable.refresh()
+                //logSiteTable.refresh()
 
                 return
             }
@@ -80,7 +81,7 @@ class MainGui: Application() {
             result.ifPresent {
                 if (LogSiteDao.save(it)) {
                     selected.set(it)
-                    logSiteTable.refresh()
+                    //logSiteTable.refresh()
                 }
             }
         }
@@ -107,7 +108,7 @@ class MainGui: Application() {
                 confirm.showAndWait().ifPresent {
                     if (it == ButtonType.OK && LogSiteDao.delete(logSite)) {
                         logSites.remove(selected)
-                        logSiteTable.refresh()
+                        //logSiteTable.refresh()
                     }
                 }
             }
@@ -144,7 +145,7 @@ fun backupDatabase(strategy: BackupStrategy):Boolean {
     log.info("The backup creating is started. Strategy: ${strategy.name}")
     ConnectionPool.connection.use {conn ->
         try {
-            Script.process(conn, "./db_backup/${strategy.strategyName}", "", "COMPRESSION ZIP");
+            Script.process(conn, "./db_backup/${strategy.strategyName}", "", "COMPRESSION ZIP")
         } catch (e: SQLException) {
             log.error("Could not backup the database. ", e)
             backupIsCreated = false
@@ -162,9 +163,8 @@ fun restoreDatabase(strategy: BackupStrategy):Boolean {
     log.info("The database restoring is started. Strategy: ${strategy.name}")
     ConnectionPool.connection.use {conn ->
         try {
-            conn.prepareStatement("RUNSCRIPT FROM './db_backup/${strategy.strategyName}' COMPRESSION ZIP").use {st ->
-                st.execute()
-            }
+            conn.prepareStatement("RUNSCRIPT FROM './db_backup/${strategy.strategyName}' COMPRESSION ZIP")
+                    .use(PreparedStatement::execute)
         } catch (e: SQLException) {
             log.error("Could not restore the database. ", e)
             databaseIsRestored = false
