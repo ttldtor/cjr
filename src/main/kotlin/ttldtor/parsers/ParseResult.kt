@@ -4,6 +4,6 @@ import ttldtor.entities.*
 
 class ParseResult(val enterEvents: List<EnterEvent>,
                   val exitEvents: List<ExitEvent>,
-                  val messageEvents: List<MessageEvent>,
+                  val messageEvents: List<SimpleMessageEvent>,
                   val thirdPersonMessageEvents: List<ThirdPersonMessageEvent>,
-                  val allEvents: Map<Long, IEvent>)
+                  val allEvents: Map<Long, Event>)

@@ -126,10 +126,10 @@ class CjrChatLogParser: ChatLogParser {
         return Pair(newMillis, event)
     }
 
-    private fun parseMessageEvent(millis: Long, e: Element): Pair<Long, MessageEvent>? {
+    private fun parseMessageEvent(millis: Long, e: Element): Pair<Long, SimpleMessageEvent>? {
         val newMillis = calculateMillis(millis, e) ?: return null
         val who = e.who
-        val event = MessageEvent(timestamp = newMillis, who = who, message = e.collectText().replaceFirst("<$who> ", ""))
+        val event = SimpleMessageEvent(timestamp = newMillis, who = who, message = e.collectText().replaceFirst("<$who> ", ""))
 
         return Pair(newMillis, event)
     }
@@ -151,10 +151,10 @@ class CjrChatLogParser: ChatLogParser {
         val messageEventsElements = doc.getElementsByClass(messageEventClassName)
         val thirdPersonMessageEventsElements = doc.getElementsByClass(thirdPersonMessageClassName)
 
-        val allEvents: MutableMap<Long, IEvent> = mutableMapOf()
+        val allEvents: MutableMap<Long, Event> = mutableMapOf()
         val enterEventsList: MutableList<EnterEvent> = mutableListOf()
         val exitEventsList: MutableList<ExitEvent> = mutableListOf()
-        val messageEventsList: MutableList<MessageEvent> = mutableListOf()
+        val messageEventsList: MutableList<SimpleMessageEvent> = mutableListOf()
         val thirdPersonMessageEventsList: MutableList<ThirdPersonMessageEvent> = mutableListOf()
 
 
