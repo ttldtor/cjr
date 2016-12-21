@@ -1,6 +1,7 @@
 package ttldtor
 
 import javafx.application.Application
+import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
 import javafx.scene.Scene
@@ -44,7 +45,7 @@ class MainGui: Application() {
         logSites.addAll(LogSiteDao.get().map(::LogSiteModel))
 
         menuBar.exitMenuItem.onAction = EventHandler {
-            System.exit(0)
+            Platform.exit()
         }
 
         menuBar.viewLogSites.onAction = EventHandler {
