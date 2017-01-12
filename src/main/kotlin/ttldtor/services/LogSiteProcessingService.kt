@@ -6,7 +6,7 @@ import ttldtor.ui.javafx.models.LogSiteModel
 import java.util.concurrent.*
 
 class LogSiteProcessingService(logSiteModels: ObservableList<LogSiteModel>) {
-//    val timeout =
+    val threadPool = Executors.newFixedThreadPool(1);
     val c: CopyOnWriteArraySet<LogSiteModel> = CopyOnWriteArraySet<LogSiteModel>()
 
     val mainTask: Runnable = Runnable {

@@ -35,6 +35,8 @@ class MainGui: Application() {
 
         logSiteTable.visibleProperty().addListener({ observable, old, new ->
             menuBar.addLogSiteMenuItem.isDisable = !new
+            menuBar.editLogSiteMenuItem.isDisable = !new
+            menuBar.deleteLogSiteMenuItem.isDisable = !new
         })
 
         stage.title = "CJR"
@@ -67,22 +69,23 @@ class MainGui: Application() {
 
         val editSelected = fun ():Unit {
             val selected = logSiteTable.selectionModel.selectedItem
-            val logSite = LogSiteDao.getById(selected.id)
 
-            if (logSite == null) {
-                logSites.remove(selected)
-                //logSiteTable.refresh()
+            if (selected != null) {
+                val logSite = LogSiteDao.getById(selected.id)
 
-                return
-            }
+                if (logSite == null) {
+                    logSites.remove(selected)
 
-            val dialog = LogSiteDialog(DialogType.EDIT, logSite)
-            val result =  dialog.showAndWait()
+                    return
+                }
 
-            result.ifPresent {
-                if (LogSiteDao.save(it)) {
-                    selected.set(it)
-                    //logSiteTable.refresh()
+                val dialog = LogSiteDialog(DialogType.EDIT, logSite)
+                val result = dialog.showAndWait()
+
+                result.ifPresent {
+                    if (LogSiteDao.save(it)) {
+                        selected.set(it)
+                    }
                 }
             }
         }
@@ -109,7 +112,6 @@ class MainGui: Application() {
                 confirm.showAndWait().ifPresent {
                     if (it == ButtonType.OK && LogSiteDao.delete(logSite)) {
                         logSites.remove(selected)
-                        //logSiteTable.refresh()
                     }
                 }
             }
@@ -123,8 +125,6 @@ class MainGui: Application() {
                     ChatLogUrlsCollector().collect(selected[0].url)
                 } ui {result ->
                     println(result.dateToUrl.size)
-
-
                 }
             }
         }
